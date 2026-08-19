@@ -8,13 +8,16 @@ on:
       - dev
       - development
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  pages: write
+  id-token: write
+
 jobs:
   release:
     name: Create Release
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
     runs-on: ubuntu-latest
     # Prevent this workflow from running on forks
     if: github.event.repository.fork == false
@@ -47,6 +50,10 @@ jobs:
   trigger-publish:
     name: Trigger Publish
     needs: release
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     if: needs.release.outputs.new_release_published == 'true'
     # Note: The setup script will automatically replace this placeholder with the chosen template's publish workflow.
     uses: ./.github/workflows/publish_package.yml
