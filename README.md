@@ -1,60 +1,77 @@
-# Vue 3 + TypeScript + Vite + Plugins
+# SharePoint Tab Dev Bridge
 
-This robust, highly-automated boilerplate supports standard application development, NPM plugin development, Electron app creation, and Browser Extension building. It comes fully equipped with a unified CI/CD pipeline powered by `semantic-release`.
+> Zero-auth local development WebSocket proxy bridge for developing and debugging against SharePoint Online REST APIs in strict corporate environments.
 
-## Setup Script
+[![npm version](https://img.shields.io/npm/v/@greener-games/sharepoint-bridge.svg)](https://www.npmjs.com/package/@greener-games/sharepoint-bridge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-This project strictly relies on a CLI setup script to intelligently scaffold your architecture, build your GitHub Actions, and dynamically wire up your workspace. 
+---
 
-Run the setup script to begin:
+## Overview
 
-```sh
-node .templateScripts/setup.cjs
+The **SharePoint Tab Dev Bridge** allows developers to develop and debug against real SharePoint Online REST APIs locally on `http://localhost:5173` without requiring Azure AD / Entra ID App Registrations, Client IDs/Secrets, IT security exemptions, or custom browser command-line flags.
+
+Instead of hardcoding corporate credentials, it establishes a lightweight local WebSocket tunnel directly to an already-authenticated SharePoint browser tab in Edge or Chrome.
+
+---
+
+## Quickstart
+
+### 1. Install
+
+```bash
+npm install @greener-games/sharepoint-bridge --save-dev
 ```
 
-### Options
+### 2. Configure (`.sharepoint/serverconfig.js`)
 
-1. **Project Development**: Scaffolds a standard frontend web application, configuring CI/CD hosting deployments based on your cloud provider of choice.
-2. **Plugin Development**: Scaffolds a new plugin (Vue UI Component Library, Vue Plugin, Vite Plugin, or generic TS Utility). Automatically configures workspace logic and NPM publishing pipelines.
-3. **Electron App**: Scaffolds an Electron desktop application setup and links it to a desktop-specific release pipeline.
-4. **Browser Extension**: Scaffolds a Chrome/Firefox/Edge extension setup.
+Create a `.sharepoint/serverconfig.js` in your project root:
 
-## Documentation Generation
-
-During plugin development, the CLI will ask if you want to deploy documentation. If you opt-in:
-- The script dynamically injects an interactive **VitePress** documentation site into your new plugin's `docs/` folder.
-- It seamlessly updates your `publish_package.yml` CI pipeline to deploy your docs to GitHub Pages immediately following a successful NPM package release!
-
-Run `npm run docs:dev` inside your plugin folder to preview your site.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```javascript
+module.exports = {
+  port: 8080,
+  sharepointUrl: 'https://<tenant>.sharepoint.com/sites/MySite',
+  profiles: {
+    mainSite: {
+      port: 8080,
+      sharepointUrl: 'https://<tenant>.sharepoint.com/sites/MySite',
+    },
+    templates: {
+      port: 8081,
+      sharepointUrl: 'https://<tenant>.sharepoint.com/sites/Templates',
+    },
+  },
+};
 ```
 
-### Compile and Hot-Reload for Development
+### 3. Run
 
-```sh
-npm run dev
+```bash
+# Start the bridge server & dashboard on http://localhost:8080/
+npx sp-bridge
+
+# Or integrate into your package.json scripts:
+# "dev:sharepoint": "concurrently \"vite --mode sharepoint\" \"sp-bridge\""
 ```
 
-### Type-Check, Compile and Minify for Production
+1. Open your target SharePoint site in Edge or Chrome.
+2. Visit `http://localhost:8080/` and drag the **⭐ Bookmarklet** button to your bookmarks bar.
+3. Click the bookmarklet while on the SharePoint tab.
+4. Your local frontend (`http://localhost:5173`) can now make standard REST requests to `http://localhost:8080/_api/...` seamlessly!
 
-```sh
-npm run build
-```
+---
 
-### Lint with [ESLint](https://eslint.org/)
+## Features
 
-```sh
-npm run lint
-```
+- **Zero Corporate Auth Needed**: Re-uses the active browser SSO cookie session.
+- **Full HTTP Method Support**: Handles `GET`, `POST`, `PATCH`, `MERGE`, and `DELETE`.
+- **Automatic Form Digest Tokens**: Seamlessly acquires fresh `X-RequestDigest` tokens for write operations.
+- **In-Memory Caching & 0ms Replay**: Caches repeated GET queries with instant 1-click flush controls.
+- **Real-Time Developer Dashboard**: Built-in developer dashboard with live request inspector, headers view, and latency tracking over WebSockets (0 HTTP polling).
+- **Concurrent Multi-Profile Support**: Spin up multiple bridge servers simultaneously on different ports for distinct SharePoint sites.
+
+---
+
+## License
+
+MIT © [Tom Greener](https://github.com/TomGreener91)

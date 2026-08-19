@@ -1,33 +1,35 @@
 {
   "name": "@greener-games/sharepoint-bridge",
-  "version": "0.0.0",
-  "description": "Utils Library @greener-games/sharepoint-bridge",
-  "author": "",
-  "license": "MIT",
+  "version": "1.0.0",
+  "description": "Zero-auth local development WebSocket proxy bridge for SharePoint Online REST APIs",
+  "main": "src/index.mjs",
+  "module": "src/index.mjs",
+  "types": "src/index.d.ts",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+  "bin": {
+    "sp-bridge": "src/cli.mjs"
   },
-  "sideEffects": false,
   "files": [
-    "dist"
+    "src",
+    "README.md"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
-    "prepublishOnly": "npm run build"
+    "start": "node src/cli.mjs",
+    "test": "node src/test.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "./server": "./src/server.mjs",
+    "./listener": "./src/listener.js"
+  },
+  "dependencies": {
+    "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@types/node": "^20.12.5",
-    "typescript": "^5.4.4",
-    "vite": "^8.0.13",
-    "vite-plugin-dts": "^4.0.0"
+    "@types/node": "^20.0.0",
+    "@types/ws": "^8.5.14"
   }
 }
