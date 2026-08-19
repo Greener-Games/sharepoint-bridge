@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/Greener-Games/sharepoint-bridge/compare/v1.0.0...v1.0.1) (2026-08-19)
+
+### Bug Fixes
+
+- trigger release ([4ac5ea0](https://github.com/Greener-Games/sharepoint-bridge/commit/4ac5ea0e8cea3ec403624bf0b264bc53105865e7))
+
 # 1.0.0 (2026-08-19)
 
 ### Bug Fixes

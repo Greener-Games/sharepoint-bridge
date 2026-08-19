@@ -1,6 +1,6 @@
 {
   "name": "@greener-games/sharepoint-bridge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zero-auth local development WebSocket proxy bridge for SharePoint Online REST APIs",
   "main": "src/index.mjs",
   "module": "src/index.mjs",
