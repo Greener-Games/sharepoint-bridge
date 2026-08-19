@@ -14,7 +14,7 @@ on:
         required: true
 
 env:
-  DEPLOY_DOCS: '{{DEPLOY_DOCS}}'
+  DEPLOY_DOCS: 'false'
 
 permissions:
   contents: read
@@ -38,13 +38,13 @@ jobs:
 
       - name: Publish Package (Real)
         if: github.event_name != 'pull_request' && !contains(inputs.version, '-dev')
-        run: npm publish --workspace plugins/{{PLUGIN_NAME}} --access public
+        run: npm publish --workspace plugins/@greener-games/sharepoint-bridge --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Package (Dry Run)
         if: github.event_name == 'pull_request'
-        run: npm publish --workspace plugins/{{PLUGIN_NAME}} --access public --dry-run
+        run: npm publish --workspace plugins/@greener-games/sharepoint-bridge --access public --dry-run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -52,5 +52,5 @@ jobs:
         if: env.DEPLOY_DOCS == 'true' && github.event_name != 'pull_request'
         uses: ./.github/actions/deploy-github-pages
         with:
-          build-command: 'npm run docs:build --workspace plugins/{{PLUGIN_NAME}} --if-present'
-          dist-path: './plugins/{{PLUGIN_NAME}}/docs/.vitepress/dist'
+          build-command: 'npm run docs:build --workspace plugins/@greener-games/sharepoint-bridge --if-present'
+          dist-path: './plugins/@greener-games/sharepoint-bridge/docs/.vitepress/dist'

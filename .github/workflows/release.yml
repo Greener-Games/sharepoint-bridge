@@ -49,7 +49,7 @@ jobs:
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
     # Note: The setup script will automatically replace this placeholder with the chosen template's publish workflow.
-    uses: ./.github/workflows/publish-placeholder.yml
+    uses: ./.github/workflows/publish_package.yml
     with:
       version: ${{ needs.release.outputs.new_release_version }}
     secrets:

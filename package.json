@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "npm run build:workspaces && npm run build:app",
     "preview": "vite preview",
     "lint:eslint": "eslint .",
     "lint:eslint:fix": "eslint . --fix",
@@ -27,7 +27,10 @@
     "deps:upgrade:minor": "npx npm-check-updates -u --target minor --peer && npm install",
     "deps:upgrade:latest": "npx npm-check-updates -u --peer && npm install",
     "deps:upgrade:interactive": "npx npm-check-updates -i --peer",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:app": "vue-tsc --noEmit && vite build",
+    "build:workspaces": "npm run build --workspaces --if-present",
+    "publish:test": "npm run publish:test --workspaces --if-present"
   },
   "dependencies": {
     "pinia": "^3.0.4",
@@ -77,5 +80,8 @@
     "vite-plugin-vue-devtools": "^8.1.2",
     "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.3.0"
-  }
+  },
+  "workspaces": [
+    "plugins/**/*"
+  ]
 }

@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: '{{PASCAL_PLUGIN_NAME}}',
+      name: 'SharepointBridge',
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
       formats: ['es', 'cjs'],
     },

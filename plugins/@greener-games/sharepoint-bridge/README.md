@@ -1,26 +1,21 @@
-# {{PASCAL_PLUGIN_NAME}}
+# SharepointBridge
 
-A Vue component library.
+A utility library.
 
 ## Usage
 
-To use the components from this library, import them and register them in your Vue application:
+To use this library, import the functions or classes you need:
 
 ```ts
-import { createApp } from 'vue'
-import App from './App.vue'
-import { YourComponent } from '{{PLUGIN_NAME}}'
+import { yourExportedFunction } from '@greener-games/sharepoint-bridge'
 
-const app = createApp(App)
-
-app.component('YourComponent', YourComponent)
-
-app.mount('#app')
+// Use the function
+yourExportedFunction()
 ```
 
 ## Development
 
-To work on this component library:
+To work on this library:
 
 - `npm run dev`: Build the library in watch mode.
 - `npm run build`: Build the library for production.
