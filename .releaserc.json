@@ -20,7 +20,7 @@
     [
       "@semantic-release/npm",
       {
-        "pkgRoot": "plugins/{{plugin_name}}",
+        "pkgRoot": "plugins/@greener-games/sharepoint-bridge",
         "npmPublish": false
       }
     ],
