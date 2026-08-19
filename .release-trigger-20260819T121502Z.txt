@@ -1,0 +1,3 @@
+Trigger release: file to trigger CI and semantic-release
+
+Created by automation for TomGreener91 on 2026-08-19T12:15:02Z.
