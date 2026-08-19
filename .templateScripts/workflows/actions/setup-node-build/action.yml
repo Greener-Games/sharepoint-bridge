@@ -1,0 +1,34 @@
+name: 'Setup Node and Build'
+description: 'Sets up Node.js, installs dependencies, and runs the build script'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '22.x'
+  build-command:
+    description: 'Command to build the project'
+    required: false
+    default: 'npm run build'
+  registry-url:
+    description: 'Optional registry to set up for auth'
+    required: false
+    default: ''
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: Install Dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Build Project
+      run: ${{ inputs.build-command }}
+      shell: bash

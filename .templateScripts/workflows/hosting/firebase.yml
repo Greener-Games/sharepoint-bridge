@@ -1,0 +1,53 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - dev
+      - development
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  workflow_call:
+    inputs:
+      version:
+        description: 'The version being deployed (unused for firebase push/pr)'
+        required: false
+        type: string
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node and Build
+        uses: ./.github/actions/setup-node-build
+        with:
+          build-command: 'npm run build'
+
+      - name: Determine Target Channel
+        id: deploy_env
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "channel_id=pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == *"dev"* ]]; then
+            echo "channel_id=staging" >> $GITHUB_OUTPUT
+          else
+            echo "channel_id=live" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: ${{ steps.deploy_env.outputs.channel_id }}
+          projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'

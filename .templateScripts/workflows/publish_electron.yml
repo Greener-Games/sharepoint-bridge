@@ -1,0 +1,60 @@
+name: Build and Release Electron App
+
+on:
+  pull_request:
+    branches: [ "master", "main", "dev", "development" ]
+  workflow_call:
+    inputs:
+      version:
+        description: 'The version being released'
+        required: true
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: false
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version && format('v{0}', inputs.version) || github.ref }}
+
+      - name: Setup Node and Make Electron App
+        uses: ./.github/actions/setup-node-build
+        with:
+          build-command: 'npm run electron:make'
+
+      - name: Determine Release Type
+        if: github.event_name != 'pull_request'
+        id: release_type
+        run: |
+          if [[ "${{ inputs.version }}" =~ -dev ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+            echo "latest=false" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+            echo "latest=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Artifacts to Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          files: |
+            out/make/**/*.zip
+            out/make/**/*.exe
+            out/make/**/*.dmg
+            out/make/**/*.deb
+            out/make/**/*.rpm
+          prerelease: ${{ steps.release_type.outputs.prerelease }}
+          make_latest: ${{ steps.release_type.outputs.latest }}

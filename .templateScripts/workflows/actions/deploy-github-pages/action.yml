@@ -1,0 +1,31 @@
+name: 'Deploy GitHub Pages'
+description: 'Builds and deploys documentation to GitHub Pages'
+
+inputs:
+  build-command:
+    description: 'Command to build the docs'
+    required: true
+  dist-path:
+    description: 'Path to the built artifacts'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      with:
+        static_site_generator: 'vite'
+
+    - name: Build Docs
+      run: ${{ inputs.build-command }}
+      shell: bash
+
+    - name: Upload Docs Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ inputs.dist-path }}
+
+    - name: Deploy Docs to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

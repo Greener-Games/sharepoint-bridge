@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
+
+/* Dark mode configuration */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    /* Brand Colors */
+    --color-brand-slate-25: #ffffff;
+    --color-brand-slate-50: #f8fafc;
+    --color-brand-slate-100: #f1f5f9;
+    --color-brand-slate-400: #94a3b8;
+    --color-brand-slate-800: #1e293b;
+    --color-brand-slate-900: #0f172a;
+    --color-brand-slate-950: #020617;
+
+    --color-brand-blue-100: #dbeafe;
+    --color-brand-blue-400: #60a5fa;
+    --color-brand-blue-500: #3b82f6;
+    --color-brand-blue-600: #2563eb;
+    --color-brand-blue-700: #1d4ed8;
+    --color-brand-blue-900: #1e3a8a;
+
+    --color-brand-red-100: #fee2e2;
+    --color-brand-red-400: #f87171;
+    --color-brand-red-500: #ef4444;
+    --color-brand-red-600: #dc2626;
+
+    --color-brand-green-100: #d1fae5;
+    --color-brand-green-400: #34d399;
+    --color-brand-green-500: #10b981;
+    --color-brand-green-600: #059669;
+
+    --color-brand-purple-100: #f3e8ff;
+    --color-brand-purple-400: #a78bfa;
+    --color-brand-purple-500: #8b5cf6;
+    --color-brand-purple-600: #7c3aed;
+
+    /* Semantic / Generic Colors */
+    --color-primary: var(--color-brand-blue-600);
+    --color-primary-hover: var(--color-brand-blue-700);
+    
+    --color-danger: var(--color-brand-red-500);
+    --color-success: var(--color-brand-green-500);
+
+    /* Layout Colors */
+    --color-bg-base: var(--color-brand-slate-50);
+    --color-bg-surface: var(--color-brand-slate-25);
+    --color-text-main: var(--color-brand-slate-900);
+    --color-text-muted: var(--color-brand-slate-400);
+
+    /* breakpoints, fonts, etc. */
+    --breakpoint-2xl: 1440px;
+    --font-sans: ui-sans-serif, system-ui, "Segoe UI", roboto, "Helvetica Neue", arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Dark mode overrides */
+.dark {
+    --color-bg-base: var(--color-brand-slate-950);
+    --color-bg-surface: var(--color-brand-slate-900);
+    --color-text-main: var(--color-brand-slate-50);
+    --color-text-muted: var(--color-brand-slate-400);
+    
+    /* Shift primary colors for dark mode contrast */
+    --color-primary: var(--color-brand-blue-500);
+    --color-primary-hover: var(--color-brand-blue-400);
+}
+
+@layer base {
+    body {
+        @apply bg-bg-base text-text-main antialiased transition-colors duration-300;
+    }
+
+    h1 {
+        @apply text-3xl md:text-5xl font-bold leading-tight tracking-tight text-text-main;
+    }
+
+    h2 {
+        @apply text-2xl md:text-3xl font-semibold leading-snug text-text-main;
+    }
+
+    h3 {
+        @apply text-xl md:text-2xl font-medium leading-snug text-text-main;
+    }
+}
+
+@layer components {
+    .lead {
+        @apply text-lg md:text-xl text-text-muted;
+    }
+
+    .muted {
+        @apply text-sm text-text-muted;
+    }
+
+    .glass {
+        @apply bg-bg-surface/70 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-sm;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-primary hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg dark:text-white;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center px-6 py-3 border border-primary text-base font-medium rounded-full text-primary bg-transparent hover:bg-primary/10 hover:scale-105 active:scale-95 transition-all duration-200;
+    }
+}

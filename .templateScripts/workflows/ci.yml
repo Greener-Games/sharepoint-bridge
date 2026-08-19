@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: ['master', 'main', 'dev', 'development']
+  pull_request:
+    branches: ['master', 'main', 'dev', 'development']
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # Skip CI on automated release commits to prevent infinite loops.
+    # semantic-release pushes a 'chore(release): x.y.z [skip ci]' commit; this
+    # provides an explicit, readable guard in addition to the [skip ci] convention.
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node and Build Packages (Workspaces)
+        uses: ./.github/actions/setup-node-build
+        with:
+          node-version: ${{ matrix.node-version }}
+          build-command: 'npm run build'
+
+      - name: Run Tests
+        run: npm run test --if-present
+
+      - name: Build Root App
+        run: npm run build
+
+  # Format/lint/type-check/audit/outdated aren't Node-version-specific, so they run once
+  # here instead of once per matrix leg above. `npm run doctor` grades the result and
+  # fails this job when the grade drops below its minimum passing grade (see
+  # MIN_PASSING_GRADE in scripts/health-check.js) - continue-on-error keeps the summary
+  # and PR-comment steps running afterward so a failing grade still gets full detail
+  # instead of just a bare "job failed".
+  code-health:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Project Doctor
+        id: doctor
+        continue-on-error: true
+        run: npm run doctor
+
+      - name: Publish Job Summary
+        if: always()
+        run: cat health-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report Health to PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const report = fs.existsSync('health-report.md')
+              ? fs.readFileSync('health-report.md', 'utf8')
+              : 'Health report was not generated — see the "Run Project Doctor" step logs.';
+
+            // A hidden marker lets us update the same comment on every push instead of
+            // spamming a new one, and to find it again reliably regardless of report content.
+            const marker = '<!-- project-doctor-report -->';
+            const truncate = (str, max) =>
+              str.length > max
+                ? `${str.substring(0, max)}\n\n... (truncated — run \`npm run doctor\` locally for the full report)`
+                : str;
+            const commentBody = `${marker}\n${truncate(report, 60000)}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.body && c.body.startsWith(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              });
+            }
+
+      - name: Enforce Minimum Passing Grade
+        if: steps.doctor.outcome == 'failure'
+        run: exit 1
